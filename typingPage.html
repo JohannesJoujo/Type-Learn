@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Test - Practice</title>
+    <link rel="stylesheet" href="main.css">
+    
+    <!-- Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="scriptP2.js" defer></script>
+</head>
+<body>
+    <main class="page-container typing-page-container">
+        <div class="top-bar">
+    <button type="button" class="btn-secondary" onclick="returnToHomePage()">
+        &larr; Return to Home Page
+    </button>
+    <!-- Sound Toggle Button -->
+    <button type="button" id="soundToggle" class="btn-secondary" onclick="toggleSound()">
+        🔊 Sound On
+    </button>
+</div>
+
+        <div class="card typing-card">
+            <div id="statsDisplay" class="stats-bar">
+                <div class="stat-badge"><span id="timerDisplay">Time: --</span></div>
+                <div class="stat-badge"><span id="wpmDisplay">WPM: 0</span></div>
+                <div class="stat-badge"><span id="accuracyDisplay">Accuracy: 100%</span></div>
+            </div>
+            
+            <div class="text-container">
+                <div id="textDisplay"></div>
+                <textarea id="typeinput" spellcheck="false" autofocus></textarea>
+            </div>
+        </div>
+    </main>
+
+    <!-- Results Modal -->
+    <div id="resultModal" class="modal-overlay">
+        <div class="modal-card">
+            <h2>🎉 Test Completed!</h2>
+            <div class="modal-stats">
+                <div class="modal-stat">
+                    <span class="label">WPM</span>
+                    <span id="finalWpm" class="val">0</span>
+                </div>
+                <div class="modal-stat">
+                    <span class="label">Accuracy</span>
+                    <span id="finalAcc" class="val">100%</span>
+                </div>
+                <div class="modal-stat">
+                    <span class="label">Time</span>
+                    <span id="finalTime" class="val">0s</span>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" onclick="closeModal()" class="btn-secondary">Stay</button>
+                <button type="button" onclick="location.reload()" class="btn-primary">Try Again</button>
+                <button type="button" onclick="returnToHomePage()" class="btn-secondary">Home Page</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

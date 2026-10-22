@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Test - Custom Setup</title>
+    <link rel="stylesheet" href="main.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <main class="page-container">
+        <div class="card">
+            <div class="card-header">
+                <h1>Input your text</h1>
+                <p>Customize your target text and select a time limit to begin.</p>
+            </div>
+
+            <form id="form">
+                <!-- Error banner -->
+                <div id="error"></div>
+
+                <!-- Text Input Area -->
+                <div class="form-group">
+                    <div class="label-row">
+                        <label for="userinputtext">Target Text</label>
+                        <!-- Sample Presets Toolbar -->
+                        <div class="preset-buttons">
+                            <button type="button" class="btn-preset" onclick="loadSample('short')">Short</button>
+                            <button type="button" class="btn-preset" onclick="loadSample('medium')">Medium</button>
+                            <button type="button" class="btn-preset" onclick="loadSample('quote')">Quote</button>
+                        </div>
+                    </div>
+                    
+                    <textarea 
+                        id="userinputtext" 
+                        name="userinputtext" 
+                        rows="5" 
+                        placeholder="Paste or type the text you want to practice here..."
+                    ></textarea>
+                </div>
+
+                <!-- Time Limit Selection -->
+                <div class="form-group">
+                    <label for="timeLimit">Select Time Limit</label>
+                    <div class="select-wrapper">
+                        <select id="timeLimit">
+                            <option value="0">No Limit (Stopwatch)</option>
+                            <option value="15">15 Seconds</option>
+                            <option value="30">30 Seconds</option>
+                            <option value="60">60 Seconds</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Side-by-Side Sound Controls -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="soundStyle">Typing Sound Style</label>
+                        <div class="select-wrapper">
+                            <select id="soundStyle">
+                                <option value="mechanical">Mechanical Keyboard</option>
+                                <option value="soft">Soft & Quiet</option>
+                                <option value="digital">Digital Click</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="errorSoundStyle">Error Sound Style</label>
+                        <div class="select-wrapper">
+                            <select id="errorSoundStyle">
+                                <option value="thud">Low Thud</option>
+                                <option value="retro">Retro Beep</option>
+                                <option value="buzz">Classic Buzz</option>
+                                <option value="none">Mute Error Sound</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <input type="submit" value="Start Typing" id="submit">
+            </form>
+        </div>
+    </main>
+</body>
+</html>
