@@ -1,12 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Typing Test - Custom Setup</title>
     <link rel="stylesheet" href="main.css">
     <script src="script.js" defer></script>
+    <!-- Google Fonts CDN -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=JetBrains+Mono:wght@400;600&family=Roboto+Mono:wght@400;600&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
 </head>
+
 <body>
     <main class="page-container">
         <div class="card">
@@ -30,13 +38,9 @@
                             <button type="button" class="btn-preset" onclick="loadSample('quote')">Quote</button>
                         </div>
                     </div>
-                    
-                    <textarea 
-                        id="userinputtext" 
-                        name="userinputtext" 
-                        rows="5" 
-                        placeholder="Paste or type the text you want to practice here..."
-                    ></textarea>
+
+                    <textarea id="userinputtext" name="userinputtext" rows="5"
+                        placeholder="Paste or type the text you want to practice here..."></textarea>
                 </div>
 
                 <!-- Time Limit Selection -->
@@ -78,10 +82,34 @@
                     </div>
                 </div>
 
+                <div class="option-group">
+                    <label for="fontSelect">Text Font Style</label>
+                    <div class="select-wrapper">
+                        <select id="fontSelect">
+                            <option value="monospace">Courier New (Default)</option>
+                            <option value="jetbrains">JetBrains Mono</option>
+                            <option value="fira">Fira Code</option>
+                            <option value="roboto">Roboto Mono</option>
+                            <option value="space">Space Mono</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="option-group">
+                    <label>Case Sensitivity:</label>
+                    <button type="button" id="caseToggleBtn" class="toggle-btn">
+                        🔤 Ignore Case: OFF
+                    </button>
+                </div>
+
                 <!-- Submit Button -->
+                <button type="button" onclick="window.location='pdfTyping.html'" class="nav-btn">
+                    📄 Practice with PDF File
+                </button>
                 <input type="submit" value="Start Typing" id="submit">
             </form>
         </div>
     </main>
 </body>
+
 </html>

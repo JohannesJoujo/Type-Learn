@@ -1,26 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Typing Test - Practice</title>
-    <link rel="stylesheet" href="main.css">
     
-    <!-- Confetti Library -->
+    <!-- Google Fonts CDN -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=JetBrains+Mono:wght@400;600&family=Roboto+Mono:wght@400;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="main.css">
+
+    <!-- Confetti Library & Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="scriptP2.js" defer></script>
 </head>
+
 <body>
     <main class="page-container typing-page-container">
-        <div class="top-bar">
-    <button type="button" class="btn-secondary" onclick="returnToHomePage()">
-        &larr; Return to Home Page
-    </button>
-    <!-- Sound Toggle Button -->
-    <button type="button" id="soundToggle" class="btn-secondary" onclick="toggleSound()">
-        🔊 Sound On
-    </button>
-</div>
+
+        <div class="top-nav">
+            <button onclick="returnToHomePage()" class="nav-btn">← Return to Home Page</button>
+            <div class="nav-right">
+                <!-- Font Style Selector Dropdown -->
+                <div class="select-wrapper">
+                    <select id="fontSelect" class="nav-btn nav-select">
+                        <option value="monospace">Courier New (Default)</option>
+                        <option value="jetbrains">JetBrains Mono</option>
+                        <option value="fira">Fira Code</option>
+                        <option value="roboto">Roboto Mono</option>
+                        <option value="space">Space Mono</option>
+                    </select>
+                </div>
+                <button id="caseToggle" class="nav-btn">🔤 Ignore Case: OFF</button>
+                <button id="soundToggle" onclick="toggleSound()" class="nav-btn">🔊 Sound On</button>
+            </div>
+        </div>
 
         <div class="card typing-card">
             <div id="statsDisplay" class="stats-bar">
@@ -28,12 +45,13 @@
                 <div class="stat-badge"><span id="wpmDisplay">WPM: 0</span></div>
                 <div class="stat-badge"><span id="accuracyDisplay">Accuracy: 100%</span></div>
             </div>
-            
+
             <div class="text-container">
                 <div id="textDisplay"></div>
                 <textarea id="typeinput" spellcheck="false" autofocus></textarea>
             </div>
         </div>
+        
     </main>
 
     <!-- Results Modal -->
@@ -55,11 +73,12 @@
                 </div>
             </div>
             <div class="modal-actions">
-                <button type="button" onclick="closeModal()" class="btn-secondary">Stay</button>
-                <button type="button" onclick="location.reload()" class="btn-primary">Try Again</button>
+                <button type="button" onclick="closeModal()" class="btn-primary">Stay</button>
+                <button type="button" onclick="location.reload()" class="btn-secondary">Try Again</button>
                 <button type="button" onclick="returnToHomePage()" class="btn-secondary">Home Page</button>
             </div>
         </div>
     </div>
 </body>
+
 </html>

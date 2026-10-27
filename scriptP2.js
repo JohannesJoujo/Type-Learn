@@ -1,6 +1,7 @@
-// 1. Retrieve saved settings from LocalStorage
+// --- 1. Retrieve Saved Preferences & State Variables ---
 const loadedText = localStorage.getItem('savedTypingText') || "No text was loaded.";
-const timeLimit = parseInt(localStorage.getItem('savedTimeLimit')) || 0; 
+const timeLimit = parseInt(localStorage.getItem('savedTimeLimit'), 10) || 0; 
+let ignoreCase = localStorage.getItem('savedIgnoreCase') === 'true';
 
 // Web Audio Context (For zero-latency key clicks)
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -11,27 +12,82 @@ const typeInput = document.getElementById('typeinput');
 const timerDisplay = document.getElementById('timerDisplay');
 const wpmDisplay = document.getElementById('wpmDisplay');
 const accuracyDisplay = document.getElementById('accuracyDisplay');
+const caseToggleBtn = document.getElementById('caseToggle');
+const soundToggleBtn = document.getElementById('soundToggle');
 
-// State Variables
+// Core Test State Variables
 let timeLeft = timeLimit;
 let timeElapsed = 0; 
 let startTime = null;
 let timerStarted = false;
 let timerInterval;
 let previousTypedLength = 0;
+let lastActiveLineOffset = -1;
 
 // Initialize Timer Display
 timerDisplay.innerText = timeLimit > 0 ? `Time: ${timeLeft}s` : `Time: 0s`;
 
-// 2. Break target text into individual character spans
+// --- 2. Case-Insensitive Helper & Live Toggle ---
+function charsMatch(charA, charB) {
+    if (charA == null || charB == null) return false;
+    return ignoreCase ? charA.toLowerCase() === charB.toLowerCase() : charA === charB;
+}
+
+function updateCaseButton() {
+    if (caseToggleBtn) {
+        caseToggleBtn.innerText = ignoreCase ? '🔤 Ignore Case: ON' : '🔤 Ignore Case: OFF';
+        caseToggleBtn.classList.toggle('active', ignoreCase);
+    }
+}
+updateCaseButton();
+
+function toggleCaseSensitivity() {
+    ignoreCase = !ignoreCase;
+    localStorage.setItem('savedIgnoreCase', ignoreCase);
+    updateCaseButton();
+
+    // Re-evaluate green/red highlights for all typed characters in real-time
+    const typedChars = typeInput.value.split('');
+    spans.forEach((span, index) => {
+        if (typedChars[index] != null) {
+            span.className = '';
+            if (charsMatch(typedChars[index], targetChars[index])) {
+                span.classList.add('correct');
+            } else {
+                span.classList.add('incorrect');
+            }
+        }
+    });
+
+    // Retain active block cursor position
+    const currentLength = typedChars.length;
+    if (spans[currentLength]) {
+        spans[currentLength].classList.add('active-char');
+    }
+
+    // Recalculate WPM and Accuracy immediately
+    updateStats();
+}
+
+if (caseToggleBtn) {
+    caseToggleBtn.addEventListener('click', toggleCaseSensitivity);
+}
+
+// --- 3. Break Target Text into Spans & Cache Reference Array ---
 const targetChars = loadedText.split('');
-targetChars.forEach(char => {
+const spans = targetChars.map(char => {
     const span = document.createElement('span');
     span.innerText = char;
     textDisplay.appendChild(span);
+    return span;
 });
 
-// 3. Map word boundaries (start & end character indices for actual word count WPM)
+// Highlight first letter on load
+if (spans.length > 0) {
+    spans[0].classList.add('active-char');
+}
+
+// --- 4. Map Word Boundaries (Actual Word Count WPM) ---
 const wordMap = [];
 let currentWord = { start: -1, end: -1 };
 
@@ -57,15 +113,14 @@ typeInput.addEventListener('scroll', () => {
     textDisplay.scrollTop = typeInput.scrollTop;
 });
 
-// 4. Calculate WPM (Actual Correct Words) and Accuracy
+// --- 5. Calculate WPM & Accuracy ---
 function updateStats() {
     const typedChars = typeInput.value.split('');
     const totalTyped = typedChars.length;
     let correctChars = 0;
 
-    const spans = textDisplay.querySelectorAll('span');
     spans.forEach((span, index) => {
-        if (typedChars[index] != null && typedChars[index] === targetChars[index]) {
+        if (typedChars[index] != null && charsMatch(typedChars[index], targetChars[index])) {
             correctChars++;
         }
     });
@@ -82,7 +137,7 @@ function updateStats() {
             let isWordCorrect = true;
 
             for (let i = word.start; i <= word.end; i++) {
-                if (typedChars[i] !== targetChars[i]) {
+                if (!charsMatch(typedChars[i], targetChars[i])) {
                     isWordCorrect = false;
                     break;
                 }
@@ -106,7 +161,7 @@ function updateStats() {
     }
 }
 
-// 5. Timer Logic
+// --- 6. Timer Logic ---
 function startTimer() {
     startTime = Date.now();
 
@@ -132,15 +187,14 @@ function startTimer() {
     }, 200);
 }
 
-// 6. Stop Test Handler & Celebration
+// --- 7. Stop Test Handler & Celebration ---
 function endTest(message) {
     clearInterval(timerInterval);
     typeInput.disabled = true;
     timerDisplay.innerText = message;
     updateStats();
 
-    // Remove active cursor highlight from text
-    const spans = textDisplay.querySelectorAll('span');
+    // Remove active cursor highlight
     spans.forEach(span => span.classList.remove('active-char'));
 
     // Trigger Confetti Blast
@@ -164,7 +218,7 @@ function endTest(message) {
     if (finalAccEl) finalAccEl.innerText = accuracyDisplay.innerText.replace('Accuracy: ', '');
     if (finalTimeEl) finalTimeEl.innerText = `${exactElapsed}s`;
 
-    // Show Modal Overlay after a brief delay
+    // Show Modal Overlay
     if (modalEl) {
         setTimeout(() => {
             modalEl.classList.add('active');
@@ -172,7 +226,7 @@ function endTest(message) {
     }
 }
 
-// 7. Audio Keypress Triggers
+// --- 8. Audio Keypress Event Listener ---
 typeInput.addEventListener('keydown', (e) => {
     const ignoredKeys = [
         'Shift', 'Control', 'Alt', 'Meta', 'Tab', 'CapsLock', 
@@ -183,7 +237,7 @@ typeInput.addEventListener('keydown', (e) => {
     }
 });
 
-// 8. Typing Input Handler
+// --- 9. Optimized Typing Input Handler ---
 typeInput.addEventListener('input', () => {
     if (!timerStarted) {
         startTimer();
@@ -192,63 +246,61 @@ typeInput.addEventListener('input', () => {
 
     const typedChars = typeInput.value.split('');
     const currentLength = typedChars.length;
-    const isTypingForward = currentLength > previousTypedLength;
-    previousTypedLength = currentLength;
 
-    const spans = textDisplay.querySelectorAll('span');
-
-    // Color correct/incorrect letters
-    spans.forEach((span, index) => {
-        const typedChar = typedChars[index];
-        span.className = ''; 
-
-        if (typedChar == null) {
-            // Not typed yet
-        } else if (typedChar === targetChars[index]) {
-            span.classList.add('correct');
-        } else {
-            span.classList.add('incorrect');
-            
-            // Play error sound ONLY on freshly typed incorrect character (not when backspacing)
-            if (isTypingForward && index === currentLength - 1) {
-                playErrorSound();
+    if (currentLength > previousTypedLength) {
+        // Typing forward (handles single keys, fast typing, or paste)
+        for (let i = previousTypedLength; i < currentLength; i++) {
+            const targetSpan = spans[i];
+            if (targetSpan) {
+                targetSpan.className = '';
+                if (charsMatch(typedChars[i], targetChars[i])) {
+                    targetSpan.classList.add('correct');
+                } else {
+                    targetSpan.classList.add('incorrect');
+                    if (i === currentLength - 1) {
+                        playErrorSound();
+                    }
+                }
             }
         }
-    });
+    } else if (currentLength < previousTypedLength) {
+        // Multi-character erase fix (Cmd+Backspace, Ctrl+Backspace, or text selection delete)
+        for (let i = currentLength; i < spans.length; i++) {
+            spans[i].className = '';
+        }
+    }
 
-    // Move active marker & auto-scroll current line to vertical center
-    const nextCharIndex = typedChars.length;
-    if (spans[nextCharIndex]) {
-        const activeSpan = spans[nextCharIndex];
+    previousTypedLength = currentLength;
+
+    // Reset active cursor highlight across all spans
+    spans.forEach(span => span.classList.remove('active-char'));
+
+    // Move cursor to the new current position
+    if (spans[currentLength]) {
+        const activeSpan = spans[currentLength];
         activeSpan.classList.add('active-char');
 
-        // Scroll current active line to vertical center
-        activeSpan.scrollIntoView({
-            block: 'center',
-            behavior: 'instant'
-        });
-
-        // Sync hidden textarea scroll position
-        typeInput.scrollTop = textDisplay.scrollTop;
+        // Scroll ONLY when line offset changes to prevent layout thrashing
+        if (activeSpan.offsetTop !== lastActiveLineOffset) {
+            activeSpan.scrollIntoView({
+                block: 'center',
+                behavior: 'instant'
+            });
+            lastActiveLineOffset = activeSpan.offsetTop;
+            typeInput.scrollTop = textDisplay.scrollTop;
+        }
     }
 
     updateStats();
 
-    // Check for test completion
+    // Check completion
     if (typedChars.length >= targetChars.length) {
         endTest("Finished!");
     }
 });
 
-// Initialize active block cursor on the first letter when page loads
-const allSpans = textDisplay.querySelectorAll('span');
-if (allSpans.length > 0) {
-    allSpans[0].classList.add('active-char');
-}
-
-// --- Sound Controls ---
+// --- 10. Web Audio Sound Engine ---
 let isMuted = localStorage.getItem('typingSoundMuted') === 'true';
-const soundToggleBtn = document.getElementById('soundToggle');
 
 function updateSoundButton() {
     if (soundToggleBtn) {
@@ -270,14 +322,11 @@ function playKeySound() {
         audioCtx.resume();
     }
 
-    // Fetch latest saved style from LocalStorage
     const currentSoundStyle = localStorage.getItem('savedSoundStyle') || 'mechanical';
-
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
 
     if (currentSoundStyle === 'soft') {
-        // Soft: Very deep, low-frequency sine wave
         osc.type = 'sine';
         osc.frequency.setValueAtTime(160, audioCtx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.05);
@@ -291,7 +340,6 @@ function playKeySound() {
         osc.stop(audioCtx.currentTime + 0.05);
 
     } else if (currentSoundStyle === 'digital') {
-        // Digital: High-pitched square wave
         osc.type = 'square';
         osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.025);
@@ -305,7 +353,6 @@ function playKeySound() {
         osc.stop(audioCtx.currentTime + 0.025);
 
     } else {
-        // Mechanical: Mid-frequency triangle wave
         osc.type = 'triangle';
         osc.frequency.setValueAtTime(450, audioCtx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(90, audioCtx.currentTime + 0.04);
@@ -327,15 +374,13 @@ function playErrorSound() {
         audioCtx.resume();
     }
 
-    // Retrieve saved error sound preference
     const currentErrorStyle = localStorage.getItem('savedErrorSoundStyle') || 'buzz';
-    if (currentErrorStyle === 'none') return; // User chose silent errors
+    if (currentErrorStyle === 'none') return;
 
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
 
     if (currentErrorStyle === 'thud') {
-        // 1. LOW THUD: Deep sine wave frequency drop
         osc.type = 'sine';
         osc.frequency.setValueAtTime(110, audioCtx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 0.08);
@@ -349,7 +394,6 @@ function playErrorSound() {
         osc.stop(audioCtx.currentTime + 0.08);
 
     } else if (currentErrorStyle === 'retro') {
-        // 2. RETRO BEEP: Square wave pitch step down
         osc.type = 'square';
         osc.frequency.setValueAtTime(300, audioCtx.currentTime);
         osc.frequency.setValueAtTime(150, audioCtx.currentTime + 0.05);
@@ -363,7 +407,6 @@ function playErrorSound() {
         osc.stop(audioCtx.currentTime + 0.1);
 
     } else {
-        // 3. CLASSIC BUZZ (Default): Low sawtooth drop
         osc.type = 'sawtooth';
         osc.frequency.setValueAtTime(150, audioCtx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.1);
@@ -377,14 +420,44 @@ function playErrorSound() {
         osc.stop(audioCtx.currentTime + 0.1);
     }
 }
-// Close modal overlay to view typed passage
+
+// --- 11. Modal Controls & Navigation ---
 function closeModal() {
     const modalEl = document.getElementById('resultModal');
     if (modalEl) {
         modalEl.classList.remove('active');
     }
 }
-// Home Page Navigation
+
 function returnToHomePage() {
     window.location = "index.html";
+}
+
+// --- Font Style Handler ---
+const fontSelect = document.getElementById('fontSelect');
+const savedFont = localStorage.getItem('savedFontStyle') || 'monospace';
+
+function applyFont(fontKey) {
+    // Remove old font classes from body
+    document.body.classList.remove('font-jetbrains', 'font-fira', 'font-roboto', 'font-space');
+    
+    if (fontKey !== 'monospace') {
+        document.body.classList.add(`font-${fontKey}`);
+    }
+
+    if (fontSelect) {
+        fontSelect.value = fontKey;
+    }
+}
+
+// Load saved font on page start
+applyFont(savedFont);
+
+// Handle user dropdown selection
+if (fontSelect) {
+    fontSelect.addEventListener('change', (e) => {
+        const selectedFont = e.target.value;
+        localStorage.setItem('savedFontStyle', selectedFont);
+        applyFont(selectedFont);
+    });
 }

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Typing Practice</title>
+    
+    <!-- Google Fonts CDN -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=JetBrains+Mono:wght@400;600&family=Roboto+Mono:wght@400;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="main.css">
+
+    <!-- PDF.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+
+    <div class="app-wrapper">
+        <!-- Top Horizontal Header Nav -->
+        <div class="top-nav">
+            <button onclick="returnToHomePage()" class="nav-btn">← Home</button>
+            <div class="nav-right">
+                <label for="pdfFileInput" class="nav-btn upload-btn">📁 Choose PDF File</label>
+                <input type="file" id="pdfFileInput" accept="application/pdf" style="display: none;">
+                
+                <!-- Toggle PDF Preview Button -->
+                <button id="togglePdfBtn" class="nav-btn">📖 Show PDF</button>
+                
+                <!-- Font Style Selector Dropdown -->
+                <div class="select-wrapper">
+                    <select id="fontSelect" class="nav-btn nav-select">
+                        <option value="monospace">Courier New (Default)</option>
+                        <option value="jetbrains">JetBrains Mono</option>
+                        <option value="fira">Fira Code</option>
+                        <option value="roboto">Roboto Mono</option>
+                        <option value="space">Space Mono</option>
+                    </select>
+                </div>
+                
+                <button id="caseToggle" class="nav-btn">🔤 Ignore Case: OFF</button>
+                <button id="soundToggle" onclick="toggleSound()" class="nav-btn">🔊 Sound On</button>
+            </div>
+        </div>
+
+        <!-- Main Layout Split Container -->
+        <div class="pdf-layout-container">
+            
+            <!-- Left Pane: Typing Engine (High Contrast) -->
+            <div class="typing-section">
+                <div class="stats-bar">
+                    <div class="stat-card" id="timerDisplay">Time: 0s</div>
+                    <div class="stat-card" id="wpmDisplay">WPM: 0</div>
+                    <div class="stat-card" id="accuracyDisplay">Accuracy: 100%</div>
+                </div>
+
+                <div class="text-container">
+                    <div id="textDisplay"></div>
+                    <textarea id="typeinput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Upload a PDF above to start typing..."></textarea>
+                </div>
+            </div>
+
+            <!-- Right Pane: PDF Document Preview (Hidden by default, shown via toggle) -->
+            <div id="pdfPreviewSection" class="pdf-preview-section">
+                <div class="pdf-preview-header">
+                    <span>PDF Document View</span>
+                </div>
+                <div id="pdfViewer" class="pdf-viewer-scroll">
+                    <div id="pdfPlaceholder" class="pdf-placeholder">
+                        <p>📄 Choose a PDF file above to load the document preview.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Results Modal -->
+    <div id="resultModal" class="modal-overlay">
+        <div class="modal-card">
+            <h2>Test Completed! 🎉</h2>
+            <div class="modal-stats">
+                <div class="modal-stat">
+                    <span class="stat-label">WPM</span>
+                    <span class="stat-value" id="finalWpm">0</span>
+                </div>
+                <div class="modal-stat">
+                    <span class="stat-label">Accuracy</span>
+                    <span class="stat-value" id="finalAcc">100%</span>
+                </div>
+                <div class="modal-stat">
+                    <span class="stat-label">Time</span>
+                    <span class="stat-value" id="finalTime">0s</span>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button onclick="location.reload()" class="action-btn primary">Try Again</button>
+                <button onclick="closeModal()" class="action-btn secondary">Close View</button>
+                <button onclick="returnToHomePage()" class="action-btn secondary">Home Page</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="pdfScript.js"></script>
+</body>
+</html>
